@@ -21,6 +21,6 @@
 | 구분       | 기술                          |
 |------------|-------------------------------|
 | Frontend   | HTML, CSS (Bootstrap), JS     |
-| Backend    | Java 17, Spring Boot          |
+| Backend    | Java, Spring Boot          |
 | Database   | MySQL                         |
 | Infra      | AWS EC2 (Ubuntu), GitHub      |
