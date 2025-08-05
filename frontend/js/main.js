@@ -12,6 +12,9 @@ function removeRow(button) {
     if (tbody.querySelectorAll('tr').length > 1) {
         row.remove();
     }
+    else {
+        showToast('최소 1개의 행은 남겨야 합니다.', 'danger', 3000)
+    }
 }
 
 // 규격 자동 선택
