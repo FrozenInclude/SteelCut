@@ -3,7 +3,8 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    font-size: 14px; /* 전체 축소 */
+    font-size: 14px;
+    /* 전체 축소 */
 }
 
 main {
@@ -16,27 +17,43 @@ main {
     font-size: 0.9rem;
 }
 
-/* 입력 테이블 스크롤 + 헤더 고정 */
+/* 스크롤 컨테이너 */
 .input-table-wrapper {
-    max-height: 360px;
-    overflow-y: auto;
-    border-top: 1px solid #dee2e6;
-    border-bottom: 1px solid #dee2e6;
+  max-height: 360px;
+  overflow-y: auto;
 }
 
-/* 테이블 기본 설정 */
+/* sticky thead 안정화 */
 .input-table {
-    border-collapse: collapse;
-    font-size: 0.85rem;
+  border-collapse: separate; /* <- 유지 */
+  border-spacing: 0;         /* 간격 0으로 */
+}
+
+/* 헤더 고정 + 하단선 가짜로 */
+.input-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: #f8f9fa;
+}
+.input-table thead::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: #dee2e6; /* 헤더 하단선 */
+}
+
+/* 본문 셀 구분선 복구 */
+.input-table tbody th,
+.input-table tbody td {
+  border-bottom: 1px solid #dee2e6;  /* 행 구분선 */
+  background: #fff;                  /* 겹침 방지 */
 }
 
 /* 테이블 헤더 고정 */
 .input-table thead th {
-    background-color: #f8f9fa;
     text-align: center;
-    position: sticky;
-    top: 0;
-    z-index: 1;
     font-weight: 500;
 }
 
