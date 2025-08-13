@@ -7,9 +7,11 @@ body {
     /* 전체 축소 */
 }
 
-main {
-    flex: 1;
-}
+/* 1) main이 키 커지는 거 막기 (기존 flex:1 덮어쓰기) */
+main { flex: 0 0 auto; }
+
+/* 2) 푸터를 자동으로 아래로 밀기 */
+footer { margin-top: auto; }
 
 /* 카드 전체 축소 느낌 */
 .card {
@@ -67,3 +69,10 @@ main {
     padding: 0.35rem 0.5rem;
     font-size: 0.85rem;
 }
+
+/* 결과 테이블 공통 */
+.result-table-wrapper { overflow-x: auto; }
+.result-table { font-size: 0.85rem; }
+
+/* 2단 헤더 스티키(높이값은 환경에 맞게 조정) */
+.result-table thead th { position: sticky; z-index: 2; background-color: #f8f9fa; }
