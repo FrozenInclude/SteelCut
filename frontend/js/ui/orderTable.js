@@ -1,5 +1,33 @@
 import { $, format, showToast } from "../core/utils.js";
 
+const EMPTY_ROW_ID = "order-empty-row";
+const ORDER_COLSPAN = 6;
+
+// 안내행 표시
+function showEmptyRow(tbodyEl = $("#formRows")) {
+  if (!tbodyEl) return;
+  if (tbodyEl.querySelector(`#${EMPTY_ROW_ID}`)) return;
+  const tr = document.createElement("tr");
+  tr.id = EMPTY_ROW_ID;
+  tr.innerHTML = `
+    <td colspan="${ORDER_COLSPAN}" class="py-4 text-center">
+      발주 항목이 비어 있습니다. 하단 추가 버튼을 눌러주세요.
+    </td>`;
+  tbodyEl.appendChild(tr);
+}
+
+// 안내행 숨김
+function hideEmptyRow(tbodyEl = $("#formRows")) {
+  tbodyEl?.querySelector(`#${EMPTY_ROW_ID}`)?.remove();
+}
+
+// 실제 데이터 행만 반환
+function dataRows(tbodyEl = $("#formRows")) {
+  return [...(tbodyEl?.querySelectorAll("tr") || [])].filter(
+    (tr) => tr.id !== EMPTY_ROW_ID
+  );
+}
+
 /** 행 HTML 생성 (내부용) */
 function rowHTML({ product, spec, rawLen, orderLen, qty }) {
   const p = product || "—";
@@ -23,10 +51,13 @@ function rowHTML({ product, spec, rawLen, orderLen, qty }) {
 /** 발주행 추가 (tbody에 직접 추가) */
 export function addRowFromModal(item, tbodyEl = $("#formRows")) {
   if (!tbodyEl) return;
+
+  hideEmptyRow(tbodyEl); // 안내행 숨기기
+
   const tr = document.createElement("tr");
   tr.className = "input-row";
 
-  // dataset 보존 (기존 호출부와 호환)
+  // dataset 보존
   tr.dataset.product = item?.product ?? "";
   tr.dataset.spec = item?.spec ?? "";
   tr.dataset.rawLen = item?.rawLen ?? "";
@@ -38,19 +69,30 @@ export function addRowFromModal(item, tbodyEl = $("#formRows")) {
   return tr;
 }
 
-/** 발주행 삭제 (최소 1행 보호) */
+/** 발주행 삭제 (없으면 안내행 표시) */
 export function removeRow(btnEl, tbodyEl = $("#formRows")) {
   const row = btnEl.closest("tr");
   if (!row || !tbodyEl) return;
-  const rows = tbodyEl.querySelectorAll("tr");
-  if (rows.length > 1) row.remove();
-  else showToast("최소 1개의 행은 남겨야 합니다.", "danger", 3000);
+
+  row.remove();
+
+  if (dataRows(tbodyEl).length === 0) {
+    showEmptyRow(tbodyEl);
+  }
+}
+
+/** 테이블 초기화 */
+export function resetOrderTable(tbodyEl = $("#formRows")) {
+  if (!tbodyEl) return;
+  tbodyEl.innerHTML = "";
+  showEmptyRow(tbodyEl);
+  showToast("모든 항목이 초기화되었습니다.", "success", 1500);
 }
 
 /** 입력 테이블의 유효 행 수집 */
 export function getOrderRows(tbodyEl = $("#formRows")) {
   if (!tbodyEl) return [];
-  return [...tbodyEl.querySelectorAll("tr")].filter((tr) => {
+  return dataRows(tbodyEl).filter((tr) => {
     const { product, orderLen, qty } = tr.dataset || {};
     return (
       (product && product !== "—") || Number(orderLen) > 0 || Number(qty) > 0
@@ -80,4 +122,19 @@ export function bindRowEvents(tbodyEl = $("#formRows")) {
     const btn = e.target.closest('[data-action="remove-row"]');
     if (btn) removeRow(btn, tbodyEl);
   });
+}
+
+/** 초기 상태 보정 */
+export function ensureOrderEmptyState(tbodyEl = $("#formRows")) {
+  if (dataRows(tbodyEl).length === 0) showEmptyRow(tbodyEl);
+  else hideEmptyRow(tbodyEl);
+}
+
+/** 초기화 버튼 연결 */
+export function bindResetButton(
+  btnEl = $("#resetOrderTable"),
+  tbodyEl = $("#formRows")
+) {
+  if (!btnEl) return;
+  btnEl.addEventListener("click", () => resetOrderTable(tbodyEl));
 }

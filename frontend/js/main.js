@@ -1,4 +1,3 @@
-// ./js/main.js
 /**
  * SteelCut 엔트리 (UI 바인딩/흐름 제어)
  * - 계산 로직: ./features/*
@@ -12,7 +11,12 @@ import { focusSettingInput } from "./ui/settings.js";
 
 import { bindOrderSelects } from "./ui/orderSelects.js";
 import { bindAddItemModal } from "./ui/addItemModal.js";
-import { readOrderItems, bindRowEvents } from "./ui/orderTable.js";
+import {
+  readOrderItems,
+  bindRowEvents,
+  bindResetButton,
+  ensureOrderEmptyState,
+} from "./ui/orderTable.js";
 
 import {
   renderResults,
@@ -36,6 +40,8 @@ function init() {
   // 입력 테이블: 행 삭제 위임 + 제품/규격 셀렉트 연동
   bindRowEvents();
   bindOrderSelects();
+  bindResetButton();
+  ensureOrderEmptyState();
 
   // 모달: 발주 항목 추가
   bindAddItemModal();

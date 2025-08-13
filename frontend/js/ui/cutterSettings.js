@@ -1,19 +1,19 @@
-import { showToast } from '../core/utils.js';
+import { showToast } from "../core/utils.js";
 
-const SETTINGS_KEY = 'steelcut.cutterSettings';
+const SETTINGS_KEY = "steelcut.cutterSettings";
 
 // 모듈 내부 상태
 let state = { kerf: 0, maxHeight: 0, maxWidth: 0, locked: false };
 
-// 선택자 기본값 
+// 선택자 기본값
 const DEFAULT_IDS = {
-  kerf: 'kerf',
-  maxHeight: 'maxHeight',
-  maxWidth: 'maxWidth',
-  lock: 'lockSettings',
-  applyBtn: 'applySettings',
-  resetBtn: 'resetSettings',
-  form: 'inputForm',
+  kerf: "kerf",
+  maxHeight: "maxHeight",
+  maxWidth: "maxWidth",
+  lock: "lockSettings",
+  applyBtn: "applySettings",
+  resetBtn: "resetSettings",
+  form: "inputForm",
 };
 
 /** 외부에서 읽을 수 있게 제공 */
@@ -29,9 +29,9 @@ export function setCutterSettings(next, ids = DEFAULT_IDS) {
   const $maxW = document.getElementById(ids.maxWidth);
   const $lock = document.getElementById(ids.lock);
 
-  if ($kerf) $kerf.value = state.kerf ?? '';
-  if ($maxH) $maxH.value = state.maxHeight ?? '';
-  if ($maxW) $maxW.value = state.maxWidth ?? '';
+  if ($kerf) $kerf.value = state.kerf ?? "";
+  if ($maxH) $maxH.value = state.maxHeight ?? "";
+  if ($maxW) $maxW.value = state.maxWidth ?? "";
   if ($lock) {
     $lock.checked = !!state.locked;
     setInputsDisabled($lock.checked, ids);
@@ -39,9 +39,10 @@ export function setCutterSettings(next, ids = DEFAULT_IDS) {
 }
 
 /** 로컬스토리지 저장/로드 */
-function save(ids, source = 'auto') {
+function save(ids, source = "auto") {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(state));
-  if (source === 'apply') showToast?.('절단기 설정이 적용되었습니다.');
+  if (source === "apply")
+    showToast?.("절단기 설정이 적용되었습니다.", "success", 1500);
 }
 function load(ids) {
   try {
@@ -49,13 +50,13 @@ function load(ids) {
     if (!saved) return;
     setCutterSettings(saved, ids);
   } catch (e) {
-    console.warn('설정 로드 실패', e);
+    console.warn("설정 로드 실패", e);
   }
 }
 
 /** 입력칸 활성/비활성 */
 function setInputsDisabled(disabled, ids = DEFAULT_IDS) {
-  ['kerf', 'maxHeight', 'maxWidth'].forEach((k) => {
+  ["kerf", "maxHeight", "maxWidth"].forEach((k) => {
     const el = document.getElementById(ids[k]);
     if (el) el.disabled = disabled;
   });
@@ -84,8 +85,8 @@ function readFromInputs(ids = DEFAULT_IDS) {
  */
 export function bindCutterSettings(ids = DEFAULT_IDS) {
   const root = document.getElementById(ids.form) || document;
-  if (root.dataset.cutterBound === '1') return;
-  root.dataset.cutterBound = '1';
+  if (root.dataset.cutterBound === "1") return;
+  root.dataset.cutterBound = "1";
 
   const $kerf = document.getElementById(ids.kerf);
   const $maxH = document.getElementById(ids.maxHeight);
@@ -99,31 +100,34 @@ export function bindCutterSettings(ids = DEFAULT_IDS) {
 
   // change → state 저장
   [$kerf, $maxH, $maxW].forEach((el) => {
-    el?.addEventListener('change', () => {
+    el?.addEventListener("change", () => {
       readFromInputs(ids);
-      save(ids, 'auto');
+      save(ids, "auto");
     });
   });
 
   // lock 체크 → 입력칸 토글 + 저장
-  $lock?.addEventListener('change', (e) => {
+  $lock?.addEventListener("change", (e) => {
     setInputsDisabled(!!e.target.checked, ids);
     readFromInputs(ids);
-    save(ids, 'auto');
+    save(ids, "auto");
   });
 
   // 적용 버튼 → 저장 + 토스트
-  $apply?.addEventListener('click', () => {
+  $apply?.addEventListener("click", () => {
     readFromInputs(ids);
-    save(ids, 'apply');
+    save(ids, "apply");
   });
 
   // 리셋 버튼 → 입력 초기화 + 저장
-  $reset?.addEventListener('click', () => {
-    setCutterSettings({ kerf: 0, maxHeight: 0, maxWidth: 0, locked: false }, ids);
-    save(ids, 'apply');
+  $reset?.addEventListener("click", () => {
+    setCutterSettings(
+      { kerf: 0, maxHeight: 0, maxWidth: 0, locked: false },
+      ids
+    );
+    showToast?.("모든 항목이 초기화되었습니다.", "success", 1500);
   });
 
   // 제출 이벤트 훅(필요 없으면 제거 가능)
-  document.getElementById(ids.form)?.addEventListener('submit', () => {});
+  document.getElementById(ids.form)?.addEventListener("submit", () => {});
 }
