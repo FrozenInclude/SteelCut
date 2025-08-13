@@ -65,3 +65,5 @@ frontend/build/
 eslint.config.mjs
 prettier.config.js
 prettier.prettierrc
+package.json
+package-lock.json
