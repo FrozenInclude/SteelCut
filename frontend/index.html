@@ -38,7 +38,6 @@
             <span class="navbar-toggler-icon"></span>
           </button>
 
-          <!-- Right: links + actions -->
           <div class="collapse navbar-collapse" id="scNav">
             <ul class="navbar-nav ms-auto align-items-lg-center">
               <li class="nav-item me-2">
@@ -62,7 +61,7 @@
           class="card-header d-flex justify-content-between align-items-center py-2"
         >
           <strong class="fs-6">절단기 설정</strong>
-          <div class="form-check form-switch m-0">
+          <div class="form-check form-switch m-0 sc-tight-switch">
             <input class="form-check-input" type="checkbox" id="lockSettings" />
             <label class="form-check-label small" for="lockSettings"
               >설정 고정</label
@@ -78,7 +77,7 @@
               <div class="input-group input-group-sm">
                 <input
                   type="number"
-                  class="form-control text-end"
+                  class="form-control text-end fw-semibold"
                   id="kerf"
                   min="0"
                   step="0.1"
@@ -94,7 +93,7 @@
               <div class="input-group input-group-sm">
                 <input
                   type="number"
-                  class="form-control text-end"
+                  class="form-control text-end fw-semibold"
                   id="maxHeight"
                   min="0"
                   step="1"
@@ -110,7 +109,7 @@
               <div class="input-group input-group-sm">
                 <input
                   type="number"
-                  class="form-control text-end"
+                  class="form-control text-end fw-semibold"
                   id="maxWidth"
                   min="0"
                   step="1"
@@ -233,7 +232,6 @@
           </div>
         </div>
 
-        <!-- 요약 카드 (선택) : 추후 JS로 숫자만 채워도 됨 -->
         <div class="px-3 pt-2">
           <div class="row g-2">
             <div class="col-6 col-md-3">
@@ -340,7 +338,7 @@
       style="position: fixed; bottom: 1rem; right: 1rem; z-index: 9999"
     ></div>
 
-    <!-- 장바구니 추가 모달 -->
+    <!-- 철강 추가 모달 -->
     <div class="modal fade" id="addItemModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">

@@ -152,3 +152,133 @@ footer.sc-footer:hover {
   color: #fff;
   transition: color 0.3s ease-in-out;
 }
+
+/* ====== App surface ====== */
+body {
+  background: #f5f7fb; /* 밝은 회색 배경 */
+  color: #0f172a; /* 조금 더 선명한 본문색 */
+} /* 섹션 간격 살짝 정리 */
+section.container,
+main.container {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+} /* ====== Card ====== */
+.card {
+  border: 1px solid #d0d7e5;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+.card-header {
+  background: #f8fafc;
+  border-bottom: 1px solid #d0d7e5;
+  color: #0b1220;
+}
+.card-header .fs-6 {
+  letter-spacing: 0.2px;
+} /* ====== Controls (inputs/selects/buttons) ====== */
+.input-group-sm > .form-control,
+.form-select.form-select-sm {
+  border-radius: 10px;
+  border-color: #d0d7e5;
+  height: 34px; /* 고른 라인 높이 */
+}
+.form-control:focus,
+.form-select:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+.btn-primary.btn-sm {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+.btn-outline-secondary.btn-sm {
+  color: #334155;
+  border-color: #cbd5e1;
+}
+.btn-outline-secondary.btn-sm:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+} /* ====== “절단 순서 최적화” 체크박스 라인 정리 ====== */
+.form-check .form-check-input {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.form-check .form-check-input:checked {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+.form-check.mt-2 {
+  margin-top: 0.5rem !important;
+} /* ====== Summary chips (상단 4칸 요약) ====== */
+#sumInputBars,
+#sumPieces,
+#sumLoss,
+#sumTime {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.border.rounded-3.p-2.small {
+  border-color: #d0d7e5 !important;
+  border-radius: 12px !important;
+  background: #ffffff;
+} /* ====== Tables (입력/결과 공통) ====== */
+.input-table,
+.result-table {
+  border-color: #d0d7e5;
+}
+.input-table thead th,
+.result-table thead th {
+  background: #f1f5f9 !important;
+  border-color: #d0d7e5 !important;
+  color: #0b1220;
+}
+.input-table tbody td,
+.result-table tbody td {
+  border-color: #d0d7e5;
+}
+.table-hover tbody tr:hover {
+  background: #f8fbff;
+} /* 숫자 정렬/간격 조금 더 정돈 */
+.input-table td.text-end,
+.result-table td.text-end {
+  font-variant-numeric: tabular-nums;
+} /* 삭제 버튼 셀: 버튼만 보이게 간격 정리 */
+td .btn.btn-danger.btn-sm.fs-7 {
+  line-height: 1;
+  border-radius: 8px;
+}
+td.p-0 {
+  padding: 0.25rem !important;
+} /* 빈 상태 안내 스타일 */
+#order-empty-row td {
+  background: #fbfdff;
+  color: #64748b;
+  border: 1px dashed #d0d7e5;
+  border-radius: 10px;
+} /* 결과 테이블 상단 여백/스크롤 래퍼 정리 */
+.result-table-wrapper {
+  padding: 0.25rem 0.75rem 1rem;
+} /* 푸터도 카드와 어울리게(푸터 마크업은 그대로) */
+.sc-footer {
+  background: #0b1220;
+  color: #cbd5e1;
+  padding: 0.75rem 0;
+  font-size: 0.875rem;
+}
+
+/* 헤더 스위치 좌/우 여백 타이트하게 */
+.sc-tight-switch {
+  padding-left: 1.9rem;
+} /* 기본 2.5rem → 축소 */
+.sc-tight-switch .form-check-input {
+  margin-left: -0.4rem;
+}
+.sc-tight-switch .form-check-label {
+  margin-left: 0.4rem;
+} /* 라벨 글자와 스위치 간 살짝 띄움 */
+
+/* 결과 테이블 헤더 볼드 해제 */
+.result-table thead th {
+  font-weight: 400 !important; /* normal */
+}

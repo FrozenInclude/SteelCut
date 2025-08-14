@@ -44,7 +44,7 @@ function rowHTML({ product, spec, rawLen, orderLen, qty }) {
     <td class="text-end">${ord}</td>
     <td class="text-end">${q}</td>
     <td class="text-center p-0">
-      <button type="button" class="btn btn-danger btn-sm py-0 px-1 fs-7"
+      <button type="button" class="btn btn-danger btn-sm py-0 px-1 fs-6.5"
               data-action="remove-row">×</button>
     </td>`;
 }
