@@ -2,7 +2,7 @@ import { showToast } from "../core/utils.js";
 
 const SETTINGS_KEY = "steelcut.cutterSettings";
 
-// 모듈 내부 상태
+// 모듈 상태
 let state = {
   kerf: 0,
   maxHeight: 0,
@@ -11,26 +11,26 @@ let state = {
   optimize: false,
 };
 
-// 선택자 기본값
+// 기본 ID들 (applyBtn 제거)
 const DEFAULT_IDS = {
   kerf: "kerf",
   maxHeight: "maxHeight",
   maxWidth: "maxWidth",
   lock: "lockSettings",
   optimize: "optimizeOrder",
-  applyBtn: "applySettings",
   resetBtn: "resetSettings",
   form: "inputForm",
 };
 
-/** 외부에서 읽을 수 있게 제공 */
+/** 외부에서 읽기 */
 export function getCutterSettings() {
   return { ...state };
 }
 
-/** 외부에서 설정을 집어넣어 UI에도 반영 */
+/** 외부에서 덮어쓰기 + UI 반영 */
 export function setCutterSettings(next, ids = DEFAULT_IDS) {
   state = { ...state, ...next };
+
   const $kerf = document.getElementById(ids.kerf);
   const $maxH = document.getElementById(ids.maxHeight);
   const $maxW = document.getElementById(ids.maxWidth);
@@ -47,12 +47,16 @@ export function setCutterSettings(next, ids = DEFAULT_IDS) {
   if ($opt) $opt.checked = !!state.optimize;
 }
 
-/** 로컬스토리지 저장/로드 */
-function save(ids, source = "auto") {
+/** 저장/로드 */
+function save(source = "auto") {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(state));
-  if (source === "apply")
-    showToast?.("절단기 설정이 적용되었습니다.", "success", 1500);
+  if (source === "reset") {
+    showToast?.("모든 항목이 초기화되었습니다.", "success", 1500);
+  } else if (source === "auto") {
+    // 자동 저장은 조용히; 필요하면 토스트 켜도 됨
+  }
 }
+
 function load(ids) {
   try {
     const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY));
@@ -63,21 +67,23 @@ function load(ids) {
   }
 }
 
-/** 입력칸 활성/비활성 (lock 토글용) */
+/** lock 토글 시 비/활성 */
 function setInputsDisabled(disabled, ids = DEFAULT_IDS) {
+  // 잠금 시 kerf/maxHeight/maxWidth/optimize 비활성
   ["kerf", "maxHeight", "maxWidth", "optimize"].forEach((k) => {
     const el = document.getElementById(ids[k]);
     if (el) el.disabled = disabled;
   });
 }
 
-/** DOM → state */
+/** DOM -> state 동기화 */
 function readFromInputs(ids = DEFAULT_IDS) {
   const $kerf = document.getElementById(ids.kerf);
   const $maxH = document.getElementById(ids.maxHeight);
   const $maxW = document.getElementById(ids.maxWidth);
   const $lock = document.getElementById(ids.lock);
   const $opt = document.getElementById(ids.optimize);
+
   state = {
     kerf: Number($kerf?.value) || 0,
     maxHeight: Number($maxH?.value) || 0,
@@ -87,13 +93,7 @@ function readFromInputs(ids = DEFAULT_IDS) {
   };
 }
 
-/**
- * 한 번만 바인딩
- * - apply/reset 클릭
- * - 각 입력 change
- * - lock/optimize 변경 시 저장
- * - 초기 로드
- */
+/** 바인딩 (자동저장 모드) */
 export function bindCutterSettings(ids = DEFAULT_IDS) {
   const root = document.getElementById(ids.form) || document;
   if (root.dataset.cutterBound === "1") return;
@@ -104,39 +104,40 @@ export function bindCutterSettings(ids = DEFAULT_IDS) {
   const $maxW = document.getElementById(ids.maxWidth);
   const $lock = document.getElementById(ids.lock);
   const $opt = document.getElementById(ids.optimize);
-  const $apply = document.getElementById(ids.applyBtn);
   const $reset = document.getElementById(ids.resetBtn);
 
-  // 초기 로드
+  // 최초 로드 → UI 반영
   load(ids);
 
+  // 값 변경 → state 갱신 + 즉시 저장
   [$kerf, $maxH, $maxW].forEach((el) => {
     el?.addEventListener("change", () => {
       readFromInputs(ids);
+      save("auto");
     });
   });
 
+  // lock 변경 → 입력칸 토글 + 저장
   $lock?.addEventListener("change", (e) => {
     setInputsDisabled(!!e.target.checked, ids);
     readFromInputs(ids);
+    save("auto");
   });
 
+  // optimize 변경 → 저장
   $opt?.addEventListener("change", () => {
     readFromInputs(ids);
+    save("auto");
   });
 
-  $apply?.addEventListener("click", () => {
-    readFromInputs(ids);
-    save(ids, "apply");
-  });
-
+  // 리셋 버튼 → 기본값으로 세팅 + 저장
   $reset?.addEventListener("click", () => {
     setCutterSettings(
       { kerf: 0, maxHeight: 0, maxWidth: 0, locked: false, optimize: false },
       ids
     );
-    showToast?.("모든 항목이 초기화되었습니다.", "success", 1500);
+    // state 업데이트 후 저장
+    readFromInputs(ids);
+    save("reset");
   });
-
-  document.getElementById(ids.form)?.addEventListener("submit", () => {});
 }

@@ -7,7 +7,7 @@ function presortGrouped(items, kerf = 0) {
   // 1) 그룹핑 키: product + spec
   const groups = new Map(); // key -> { items:[], firstIndex:number }
   items.forEach((it, i) => {
-    const key = `${it.product || ''}__${it.spec || ''}`;
+    const key = `${it.product || ""}__${it.spec || ""}`;
     if (!groups.has(key)) groups.set(key, { items: [], firstIndex: i });
     groups.get(key).items.push({ ...it, __origIndex: i });
   });
@@ -33,9 +33,12 @@ function presortGrouped(items, kerf = 0) {
         };
       })
       .sort((a, b) => {
-        if (a.__isNoCut !== b.__isNoCut) return (b.__isNoCut ? 1 : 0) - (a.__isNoCut ? 1 : 0);
-        if (a.__isExact !== b.__isExact) return (b.__isExact ? 1 : 0) - (a.__isExact ? 1 : 0);
-        if (a.__needLen !== b.__needLen) return (b.__needLen || 0) - (a.__needLen || 0);
+        if (a.__isNoCut !== b.__isNoCut)
+          return (b.__isNoCut ? 1 : 0) - (a.__isNoCut ? 1 : 0);
+        if (a.__isExact !== b.__isExact)
+          return (b.__isExact ? 1 : 0) - (a.__isExact ? 1 : 0);
+        if (a.__needLen !== b.__needLen)
+          return (b.__needLen || 0) - (a.__needLen || 0);
         if (a.qty !== b.qty) return (b.qty || 0) - (a.qty || 0);
         return a.__origIndex - b.__origIndex;
       })
@@ -61,7 +64,7 @@ export function planCutting({
   items,
   settings, // { kerf, maxHeight, maxWidth }
   fns, // { getStackableCount, getCuttingHeight }
-  strategy = 'sequence',
+  strategy = "sequence",
 }) {
   const { kerf = 0, maxHeight = 0, maxWidth = 0 } = settings || {};
   const { getStackableCount, getCuttingHeight } = fns || {};
@@ -70,20 +73,21 @@ export function planCutting({
   const warnings = [];
 
   if (!(maxHeight > 0) || !(maxWidth > 0)) {
-    return { results: [], warnings: ['MISSING_CUTTER_SIZE'] };
+    return { results: [], warnings: ["MISSING_CUTTER_SIZE"] };
   }
   if (kerf < 0) {
-    return { results: [], warnings: ['NEGATIVE_KERF'] };
+    return { results: [], warnings: ["NEGATIVE_KERF"] };
   }
 
   // 전략 적용: optical = 그룹드 presort
   const workItems =
-    strategy === 'optical' ? presortGrouped(items || [], kerf) : (items || []);
+    strategy === "optical" ? presortGrouped(items || [], kerf) : items || [];
 
   // 잔재 관리(동일 product+spec에서만 재사용됨)
   const leftovers = new Map();
   const keyOf = (prod, spec, len) => `${prod}__${spec}__${len}`;
-  const putLeftover = (k, cnt) => leftovers.set(k, (leftovers.get(k) || 0) + cnt);
+  const putLeftover = (k, cnt) =>
+    leftovers.set(k, (leftovers.get(k) || 0) + cnt);
   const takeLeftover = (k, cnt) => {
     const cur = leftovers.get(k) || 0;
     const use = Math.min(cur, cnt);
@@ -95,7 +99,7 @@ export function planCutting({
   const cutsForCycle = (pieces, source, rawLen, orderLen) => {
     if (!pieces || pieces <= 0) return 0;
     if (Number(rawLen) === Number(orderLen)) return 0; // 노컷 → 0
-    return pieces + (source === 'raw' ? 1 : 0); // raw는 마지막 kerf 포함
+    return pieces + (source === "raw" ? 1 : 0); // raw는 마지막 kerf 포함
   };
 
   const defaultSpeed = 15; // 기존 가정 유지
@@ -106,13 +110,24 @@ export function planCutting({
 
     // 0) 노컷
     if (Number(it.rawLen) === Number(it.orderLen)) {
-      const stackable0 = getStackableCount(it.product, it.spec, maxWidth, maxHeight);
+      const stackable0 = getStackableCount(
+        it.product,
+        it.spec,
+        maxWidth,
+        maxHeight
+      );
       if (stackable0 < 1) {
         warnings.push(`UNSTACKABLE:${it.product} ${it.spec}`);
         continue;
       }
       const barsLoaded0 = Math.min(stackable0, remainQty);
-      const height0 = getCuttingHeight(it.product, it.spec, maxWidth, maxHeight, barsLoaded0);
+      const height0 = getCuttingHeight(
+        it.product,
+        it.spec,
+        maxWidth,
+        maxHeight,
+        barsLoaded0
+      );
 
       results.push({
         ...it,
@@ -130,14 +145,19 @@ export function planCutting({
         timePerBar: 0,
         cuts: 0,
         totalTime: 0,
-        from: 'no-cut',
+        from: "no-cut",
         stackable: stackable0,
       });
       continue;
     }
 
     const perNeedLen = it.orderLen + kerf;
-    const stackable = getStackableCount(it.product, it.spec, maxWidth, maxHeight);
+    const stackable = getStackableCount(
+      it.product,
+      it.spec,
+      maxWidth,
+      maxHeight
+    );
     if (stackable < 1) {
       warnings.push(`UNSTACKABLE:${it.product} ${it.spec}`);
       continue;
@@ -146,7 +166,7 @@ export function planCutting({
     // 1) 잔재 먼저 사용
     for (const [k, availableBars] of [...leftovers.entries()]) {
       if (remainQty <= 0) break;
-      const [p, s, Ls] = k.split('__');
+      const [p, s, Ls] = k.split("__");
       if (p !== it.product || s !== it.spec) continue;
 
       const L = Number(Ls) || 0;
@@ -178,18 +198,38 @@ export function planCutting({
         const remBars = totalBars % stackable;
 
         const hFull =
-          fullCycles > 0 ? getCuttingHeight(it.product, it.spec, maxWidth, maxHeight, stackable) : 0;
+          fullCycles > 0
+            ? getCuttingHeight(
+                it.product,
+                it.spec,
+                maxWidth,
+                maxHeight,
+                stackable
+              )
+            : 0;
         const hRem =
-          remBars > 0 ? getCuttingHeight(it.product, it.spec, maxWidth, maxHeight, remBars) : 0;
+          remBars > 0
+            ? getCuttingHeight(
+                it.product,
+                it.spec,
+                maxWidth,
+                maxHeight,
+                remBars
+              )
+            : 0;
 
         const tFull = hFull && defaultSpeed ? hFull / defaultSpeed : 0;
         const tRem = hRem && defaultSpeed ? hRem / defaultSpeed : 0;
 
-        const cFull = cutsForCycle(ppp, 'leftover', L, it.orderLen);
-        const cRem = remBars > 0 ? cutsForCycle(lastPieces2 || ppp, 'leftover', L, it.orderLen) : 0;
+        const cFull = cutsForCycle(ppp, "leftover", L, it.orderLen);
+        const cRem =
+          remBars > 0
+            ? cutsForCycle(lastPieces2 || ppp, "leftover", L, it.orderLen)
+            : 0;
 
         const cuts = fullCycles * cFull + (remBars > 0 ? cRem : 0);
-        const totalTime = fullCycles * (cFull * tFull) + (remBars > 0 ? cRem * tRem : 0);
+        const totalTime =
+          fullCycles * (cFull * tFull) + (remBars > 0 ? cRem * tRem : 0);
         const timePerCut = fullCycles > 0 ? tFull : tRem;
 
         const lossFull = Math.max(0, takeBars - 1) * perBarLoss;
@@ -213,7 +253,7 @@ export function planCutting({
           timePerBar: timePerCut,
           cuts,
           totalTime,
-          from: 'leftover',
+          from: "leftover",
           stackable,
         });
       };
@@ -225,7 +265,8 @@ export function planCutting({
             ? 0
             : actuallyTaken === usedBars
               ? piecesFromLeftover
-              : Math.max(0, actuallyTaken - 1) * ppp || Math.min(ppp, piecesFromLeftover);
+              : Math.max(0, actuallyTaken - 1) * ppp ||
+                Math.min(ppp, piecesFromLeftover);
 
         if (piecesFromActuallyTaken > 0) {
           const fullBars2 = Math.max(0, actuallyTaken - 1);
@@ -245,7 +286,9 @@ export function planCutting({
     if (remainQty > 0) {
       const ppp = Math.floor(it.rawLen / perNeedLen);
       if (ppp <= 0) {
-        warnings.push(`RAW_TOO_SHORT:${it.product} ${it.spec} ${it.rawLen} < ${it.orderLen}+kerf`);
+        warnings.push(
+          `RAW_TOO_SHORT:${it.product} ${it.spec} ${it.rawLen} < ${it.orderLen}+kerf`
+        );
         continue;
       }
       const perBarLoss = it.rawLen - ppp * perNeedLen;
@@ -268,22 +311,37 @@ export function planCutting({
       const remBars = totalBars % stackable;
 
       const hFull =
-        fullCycles > 0 ? getCuttingHeight(it.product, it.spec, maxWidth, maxHeight, stackable) : 0;
+        fullCycles > 0
+          ? getCuttingHeight(
+              it.product,
+              it.spec,
+              maxWidth,
+              maxHeight,
+              stackable
+            )
+          : 0;
       const hRem =
-        remBars > 0 ? getCuttingHeight(it.product, it.spec, maxWidth, maxHeight, remBars) : 0;
+        remBars > 0
+          ? getCuttingHeight(it.product, it.spec, maxWidth, maxHeight, remBars)
+          : 0;
 
       const tFull = hFull && defaultSpeed ? hFull / defaultSpeed : 0;
       const tRem = hRem && defaultSpeed ? hRem / defaultSpeed : 0;
 
-      const cFull = cutsForCycle(ppp, 'raw', it.rawLen, it.orderLen);
-      const cRem = remBars > 0 ? cutsForCycle(lastBarPieces || ppp, 'raw', it.rawLen, it.orderLen) : 0;
+      const cFull = cutsForCycle(ppp, "raw", it.rawLen, it.orderLen);
+      const cRem =
+        remBars > 0
+          ? cutsForCycle(lastBarPieces || ppp, "raw", it.rawLen, it.orderLen)
+          : 0;
 
       const cuts = fullCycles * cFull + (remBars > 0 ? cRem : 0);
-      const totalTime = fullCycles * (cFull * tFull) + (remBars > 0 ? cRem * tRem : 0);
+      const totalTime =
+        fullCycles * (cFull * tFull) + (remBars > 0 ? cRem * tRem : 0);
       const timePerCut = fullCycles > 0 ? tFull : tRem;
 
       // 손실
-      const lossFull = (lastBarPieces === 0 ? usedBars : usedBars - 1) * perBarLoss;
+      const lossFull =
+        (lastBarPieces === 0 ? usedBars : usedBars - 1) * perBarLoss;
       const lossLast =
         lastBarPieces > 0 && lastBarPieces < ppp
           ? it.rawLen - lastBarPieces * perNeedLen
@@ -307,7 +365,7 @@ export function planCutting({
         timePerBar: timePerCut,
         cuts,
         totalTime,
-        from: 'raw',
+        from: "raw",
         stackable,
       });
 

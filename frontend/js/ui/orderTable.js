@@ -2,6 +2,7 @@ import { $, format, showToast } from "../core/utils.js";
 
 const EMPTY_ROW_ID = "order-empty-row";
 const ORDER_COLSPAN = 6;
+const ORDERS_KEY = "steelcut.orderItems:v1"; // 로컬스토리지 키 (버전 포함 권장)
 
 // 안내행 표시
 function showEmptyRow(tbodyEl = $("#formRows")) {
@@ -48,11 +49,92 @@ function rowHTML({ product, spec, rawLen, orderLen, qty }) {
     </td>`;
 }
 
+/* =========================
+ * 로컬스토리지(자동 저장/복원)
+ * ========================= */
+
+/** tbody → JSON 직렬화 */
+function serializeRows(tbodyEl = $("#formRows")) {
+  return dataRows(tbodyEl).map((tr, i) => {
+    const { product, spec, rawLen, orderLen, qty } = tr.dataset || {};
+    return {
+      idx: i + 1,
+      product: product || "",
+      spec: spec || "",
+      rawLen: Number(rawLen) || 0,
+      orderLen: Number(orderLen) || 0,
+      qty: Number(qty) || 0,
+    };
+  });
+}
+
+/** JSON → tbody에 렌더 */
+function applyRows(items = [], tbodyEl = $("#formRows")) {
+  if (!tbodyEl) return;
+  tbodyEl.innerHTML = "";
+  if (!items.length) {
+    showEmptyRow(tbodyEl);
+    return;
+  }
+  hideEmptyRow(tbodyEl);
+  const frag = document.createDocumentFragment();
+  for (const it of items) {
+    const tr = document.createElement("tr");
+    tr.className = "input-row";
+    tr.dataset.product = it.product ?? "";
+    tr.dataset.spec = it.spec ?? "";
+    tr.dataset.rawLen = it.rawLen ?? "";
+    tr.dataset.orderLen = it.orderLen ?? "";
+    tr.dataset.qty = it.qty ?? "";
+    tr.innerHTML = rowHTML(it);
+    frag.appendChild(tr);
+  }
+  tbodyEl.appendChild(frag);
+}
+
+/** 저장 */
+function saveOrders(tbodyEl = $("#formRows")) {
+  const payload = { v: 1, items: serializeRows(tbodyEl) };
+  localStorage.setItem(ORDERS_KEY, JSON.stringify(payload));
+}
+
+/** 복원 */
+export function loadOrders(tbodyEl = $("#formRows")) {
+  try {
+    const raw = localStorage.getItem(ORDERS_KEY);
+    if (!raw) {
+      ensureOrderEmptyState(tbodyEl);
+      return;
+    }
+    const parsed = JSON.parse(raw);
+    const items = Array.isArray(parsed?.items) ? parsed.items : [];
+    applyRows(items, tbodyEl);
+  } catch (e) {
+    console.warn("발주 항목 로드 실패", e);
+    ensureOrderEmptyState(tbodyEl);
+  }
+}
+
+/** 다른 탭에서 변경될 때 동기화*/
+export function bindOrderPersistence(tbodyEl = $("#formRows")) {
+  // 최초 로드
+  loadOrders(tbodyEl);
+
+  // storage 이벤트(다른 탭/창 동기화)
+  window.addEventListener("storage", (e) => {
+    if (e.key === ORDERS_KEY) loadOrders(tbodyEl);
+  });
+}
+
+/* =========================
+ * 공개 API (행 추가/삭제/초기화/읽기)
+ * ========================= */
+
 /** 발주행 추가 (tbody에 직접 추가) */
 export function addRowFromModal(item, tbodyEl = $("#formRows")) {
   if (!tbodyEl) return;
 
-  hideEmptyRow(tbodyEl); // 안내행 숨기기
+  hideEmptyRow(tbodyEl);
 
   const tr = document.createElement("tr");
   tr.className = "input-row";
@@ -66,6 +148,9 @@ export function addRowFromModal(item, tbodyEl = $("#formRows")) {
 
   tr.innerHTML = rowHTML(item ?? {});
   tbodyEl.appendChild(tr);
+
+  // 자동 저장
+  saveOrders(tbodyEl);
   return tr;
 }
 
@@ -75,10 +160,10 @@ export function removeRow(btnEl, tbodyEl = $("#formRows")) {
   if (!row || !tbodyEl) return;
 
   row.remove();
+  if (dataRows(tbodyEl).length === 0) showEmptyRow(tbodyEl);
 
-  if (dataRows(tbodyEl).length === 0) {
-    showEmptyRow(tbodyEl);
-  }
+  // 자동 저장
+  saveOrders(tbodyEl);
 }
 
 /** 테이블 초기화 */
@@ -86,6 +171,10 @@ export function resetOrderTable(tbodyEl = $("#formRows")) {
   if (!tbodyEl) return;
   tbodyEl.innerHTML = "";
   showEmptyRow(tbodyEl);
+
+  // 자동 저장(빈 상태)
+  saveOrders(tbodyEl);
+
   showToast("모든 항목이 초기화되었습니다.", "success", 1500);
 }
 
@@ -102,17 +191,7 @@ export function getOrderRows(tbodyEl = $("#formRows")) {
 
 /** 발주 항목 구조화 */
 export function readOrderItems(tbodyEl = $("#formRows")) {
-  return getOrderRows(tbodyEl).map((tr, idx) => {
-    const { product, spec, rawLen, orderLen, qty } = tr.dataset || {};
-    return {
-      idx: idx + 1,
-      product: product || "",
-      spec: spec || "",
-      rawLen: Number(rawLen) || 0,
-      orderLen: Number(orderLen) || 0,
-      qty: Number(qty) || 0,
-    };
-  });
+  return serializeRows(tbodyEl); // 직렬화 로직과 동일
 }
 
 /** 삭제 버튼 이벤트 위임 바인딩 */

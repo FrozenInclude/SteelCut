@@ -16,6 +16,7 @@ import {
   bindRowEvents,
   bindResetButton,
   ensureOrderEmptyState,
+  bindOrderPersistence,
 } from "./ui/orderTable.js";
 
 import {
@@ -38,6 +39,7 @@ function init() {
   bindCutterSettings();
 
   // 입력 테이블: 행 삭제 위임 + 제품/규격 셀렉트 연동
+  bindOrderPersistence();
   bindRowEvents();
   bindOrderSelects();
   bindResetButton();
