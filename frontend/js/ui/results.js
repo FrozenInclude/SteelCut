@@ -167,7 +167,7 @@ export function resetResults({
   if (!tbodyEl) return;
   tbodyEl.innerHTML = `
     <tr class="text-center text-muted">
-      <td colspan="${colspan}" class="py-4">
+      <td id="result-empty-row" colspan="${colspan}" class="py-4 text-center">
         결과가 없습니다. 상단에서 항목을 추가하고 ‘계산’을 눌러주세요.
       </td>
     </tr>`;

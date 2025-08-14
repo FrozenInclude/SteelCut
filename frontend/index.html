@@ -316,7 +316,7 @@
             <tbody id="resultRows">
               <!-- 계산 전 빈 상태 -->
               <tr class="text-center text-muted">
-                <td colspan="17" class="py-4">
+                <td id="result-empty-row" colspan="17" class="py-4">
                   결과가 없습니다. 상단에서 항목을 추가하고 ‘계산’을 눌러주세요.
                 </td>
               </tr>
@@ -363,7 +363,7 @@
               </div>
 
               <!-- 규격 선택 -->
-              <div class="col-12">
+              <div class="col-6 col-md-6">
                 <label class="form-label small mb-1">규격</label>
                 <select
                   id="modalSpec"
@@ -375,7 +375,7 @@
               </div>
 
               <!-- 길이 / 수량 -->
-              <div class="col-6 col-md-4">
+              <div class="col-6 col-md-6">
                 <label class="form-label small mb-1">원자재길이(mm)</label>
                 <select
                   id="modalRawLen"
@@ -385,7 +385,7 @@
                   <option selected disabled>선택</option>
                 </select>
               </div>
-              <div class="col-6 col-md-4">
+              <div class="col-6 col-md-6">
                 <label class="form-label small mb-1">발주길이(mm)</label>
                 <input
                   id="modalOrderLen"
@@ -396,7 +396,7 @@
                   disabled
                 />
               </div>
-              <div class="col-6 col-md-4">
+              <div class="col-6 col-md-6">
                 <label class="form-label small mb-1">수량(Ea)</label>
                 <input
                   id="modalQty"
