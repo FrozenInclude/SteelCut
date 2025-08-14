@@ -76,7 +76,7 @@ export function planCutting({
     return { results: [], warnings: ['NEGATIVE_KERF'] };
   }
 
-  // 🔁 전략 적용: optical = 그룹드 presort
+  // 전략 적용: optical = 그룹드 presort
   const workItems =
     strategy === 'optical' ? presortGrouped(items || [], kerf) : (items || []);
 

@@ -42,14 +42,6 @@ export function renderResults(results, opts = {}) {
     const isFirstOfGroup = renderedSoFar === 0;
     renderedInGroup.set(k, renderedSoFar + 1);
 
-    // 표시용 본당 절단품수
-    const perBarDisplay =
-      (r.totalBars ?? 0) <= 1
-        ? String(format.num(r.totalPieces))
-        : r.lastBarPieces && r.lastBarPieces !== r.perBarPieces
-          ? `${format.num(r.perBarPieces)} / ${format.num(r.lastBarPieces)}`
-          : String(format.num(r.perBarPieces));
-
     const tr = document.createElement("tr");
     tr.dataset.totalBars = String(r.totalBars || 0);
     tr.dataset.height = String(r.height || 0);
@@ -66,8 +58,8 @@ export function renderResults(results, opts = {}) {
       <td class="text-center">${format.num(r.orderLen)}</td>
       <td class="text-center">${format.num(r.qty)}</td>
 
-      <td class="text-center">${perBarDisplay}</td>
-      <td class="text-center">${format.num(r.perBarLoss)}</td>
+      <td class="text-center">${format.num(r.perBarPieces)}</td>
+      <td class="text-center">${format.num(r.totalLoss / r.totalBars)}</td>
 
       <td class="text-center">${format.num(r.totalBars)}</td>
       <td class="text-center">${format.num(r.totalPieces)}</td>
