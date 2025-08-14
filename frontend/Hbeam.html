@@ -1,81 +1,81 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>H형강 쌓기 시뮬레이션</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-      background-color: #f0f0f0;
-    }
-    canvas {
-      border: 1px solid #555;
-      background-color: #fff;
-    }
-  </style>
-</head>
-<body>
-  <canvas id="canvas" width="510" height="320"></canvas>
-
-  <script>
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-
-    const blockWidth = 125;//H
-    const blockHeight = 125;//B
-    const t1=5;
-    const t2=7;
-
-    const spacingX = t2; // 교차형 쌓기 위한 수평 간격
-    const spacingY = blockHeight/2+t1/2;    // 수직 간격
-
-    let currentX = 0;
-    let currentY = canvas.height - blockHeight;
-
-    function drawH(x, y) {
-      const legHeight = blockHeight / 2;
-
-      ctx.beginPath(); // 좌측 다리
-      ctx.moveTo(x, y);
-      ctx.lineTo(x, y + legHeight * 2);
-      ctx.stroke();
-
-      ctx.beginPath(); // 우측 다리
-      ctx.moveTo(x + blockWidth, y);
-      ctx.lineTo(x + blockWidth, y + legHeight * 2);
-      ctx.stroke();
-
-      ctx.beginPath(); // 가로선
-      ctx.moveTo(x, y + legHeight);
-      ctx.lineTo(x + blockWidth, y + legHeight);
-      ctx.stroke();
-    }
-
-    function drawStackingHBeams() {
-      ctx.lineWidth = 1.5;
-      ctx.strokeStyle = "#003399";
-
-      let row = 0;
-
-      while (true) {
-        // 현재 위치에 H를 그린다
-        if (currentX + blockWidth > canvas.width) {
-          // 오른쪽 끝 도달 -> 다음 줄로
-          row++;
-          currentX = (row % 2 === 0) ? 0 : spacingX;
-          currentY -= spacingY;
-        }
-
-        if (currentY < 0) break; // 더 이상 위로 못 올라감
-
-        drawH(currentX, currentY);
-        currentX += blockWidth;
+  <head>
+    <meta charset="UTF-8" />
+    <title>H형강 쌓기 시뮬레이션</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+        background-color: #f0f0f0;
       }
-    }
+      canvas {
+        border: 1px solid #555;
+        background-color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="510" height="320"></canvas>
 
-    drawStackingHBeams();
-  </script>
-</body>
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      const blockWidth = 125; //H
+      const blockHeight = 125; //B
+      const t1 = 5;
+      const t2 = 7;
+
+      const spacingX = t2; // 교차형 쌓기 위한 수평 간격
+      const spacingY = blockHeight / 2 + t1 / 2; // 수직 간격
+
+      let currentX = 0;
+      let currentY = canvas.height - blockHeight;
+
+      function drawH(x, y) {
+        const legHeight = blockHeight / 2;
+
+        ctx.beginPath(); // 좌측 다리
+        ctx.moveTo(x, y);
+        ctx.lineTo(x, y + legHeight * 2);
+        ctx.stroke();
+
+        ctx.beginPath(); // 우측 다리
+        ctx.moveTo(x + blockWidth, y);
+        ctx.lineTo(x + blockWidth, y + legHeight * 2);
+        ctx.stroke();
+
+        ctx.beginPath(); // 가로선
+        ctx.moveTo(x, y + legHeight);
+        ctx.lineTo(x + blockWidth, y + legHeight);
+        ctx.stroke();
+      }
+
+      function drawStackingHBeams() {
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = "#003399";
+
+        let row = 0;
+
+        while (true) {
+          // 현재 위치에 H를 그린다
+          if (currentX + blockWidth > canvas.width) {
+            // 오른쪽 끝 도달 -> 다음 줄로
+            row++;
+            currentX = row % 2 === 0 ? 0 : spacingX;
+            currentY -= spacingY;
+          }
+
+          if (currentY < 0) break; // 더 이상 위로 못 올라감
+
+          drawH(currentX, currentY);
+          currentX += blockWidth;
+        }
+      }
+
+      drawStackingHBeams();
+    </script>
+  </body>
 </html>
