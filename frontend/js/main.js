@@ -79,11 +79,13 @@ function onCalculate() {
   }
 
   const settings = getCutterSettings();
+  const strategy = settings.optimize ? "optical" : "sequence";
 
   const { results, warnings } = planCutting({
     items,
     settings,
     fns: { getStackableCount, getCuttingHeight },
+    strategy,
   });
 
   // 경고 처리(토스트/포커스는 컨트롤러에서 담당)
